@@ -4,6 +4,8 @@ require 'rdgc-dm'
 require 'spec'
 require 'spec/autorun'
 
+include RDGC
+
 Spec::Runner.configure do |config|
   
 end
