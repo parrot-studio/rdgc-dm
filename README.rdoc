@@ -10,62 +10,62 @@ License:: The MIT License
  gem install rdgc-dm
 
 == Usage
-require 'rubygems'
-require 'rdgc-dm'
+ require 'rubygems'
+ require 'rdgc-dm'
+ 
+ include RDGC::Maker
+ 
+ board = DivideDungeonMaker.create(30, 40) # width=30, height=40のMap::Boardを作る場合
+ board = DivideDungeonMaker.create(30, 40, :min_room_count = 4) # パラメータ指定（4つ以上の部屋数を期待）
+ 
+ board.each do |x, y|    # each で各座標を順に処理
+   t = board.tile(x, y)  # Tileオブジェクト取得
+   case
+   when t.wall?          # 壁
+     ...
+   when t.room?          # 部屋
+     ...
+   when t.road?          # 道
+     ...
+   end
+ end
+ 
+ board.each_tile do |x, y, t| # each_tileで座標とTileを一緒に取得
+   ...
+ end
+ 
+ rooms = board.rooms # Map::Roomオブジェクトの配列取得
+ roads = board.roads # Map::Roadオブジェクトの配列取得
+ 
+ r = rooms.choice
+ x, y = r.random_point # あるエリアのランダムな座標を取得
+ 
+ board.room?(2, 3)      # 指定座標(x, y)が部屋か判定
+ board.road?(2, 3)      # 指定座標(x, y)が部屋か判定
+ board.movable?(2, 3)   # 指定座標(x, y)が移動可能か判定
+ 
+ # その他、Map::Areaに定義されたメソッドは全て使える
+ 
+ # RDGC::Util::RandomUtilで定義され、top-levelにinclude済みのメソッド
+ # 数値は全て整数を指定すること
 
-include RDGC::Maker
+ bool_rand            # trueかfalseを返す
+ range_rand(min, max) # minからmaxまでのどれかの整数値を返す
+ select_rand(:a => 3, :b => 2, :c => 1) # :aを3/(3+2+1)、:bを2/(3+2+1)...の確率で返す
 
-board = DivideDungeonMaker.create(30, 40) # width=30, height=40のMap::Boardを作る場合
-board = DivideDungeonMaker.create(30, 40, :min_room_count = 4) # パラメータ指定（4つ以上の部屋数を期待）
+ dice(5, 10)      # 10面のサイコロを5回振った合計を返す
+ 5.dice(10)       # Integer#dice(max)が定義済みで、この場合はdice(5, 10)と同じ 
+ 5.d10            # TRPGプレイヤーにおなじみの書き方
 
-board.each do |x, y|    # each で各座標を順に処理
-  t = board.tile(x, y)  # Tileオブジェクト取得
-  case
-  when t.wall?          # 壁
-    ...
-  when t.room?          # 部屋
-    ...
-  when t.road?          # 道
-    ...
-  end
-end
-
-board.each_tile do |x, y, t| # each_tileで座標とTileを一緒に取得
-  ...
-end
-
-rooms = board.rooms # Map::Roomオブジェクトの配列取得
-roads = board.roads # Map::Roadオブジェクトの配列取得
-
-r = rooms.choice
-x, y = r.random_point # あるエリアのランダムな座標を取得
-
-board.room?(2, 3)      # 指定座標(x, y)が部屋か判定
-board.road?(2, 3)      # 指定座標(x, y)が部屋か判定
-board.movable?(2, 3)   # 指定座標(x, y)が移動可能か判定
-
-# その他、Map::Areaに定義されたメソッドは全て使える
-
-# RDGC::Util::RandomUtilで定義され、top-levelにinclude済みのメソッド
-# 数値は全て整数を指定すること
-
-bool_rand            # trueかfalseを返す
-range_rand(min, max) # minからmaxまでのどれかの整数値を返す
-select_rand(:a => 3, :b => 2, :c => 1) # :aを3/(3+2+1)、:bを2/(3+2+1)...の確率で返す
-
-dice(5, 10)      # 10面のサイコロを5回振った合計を返す
-5.dice(10)       # Integer#dice(max)が定義済みで、この場合はdice(5, 10)と同じ 
-5.d10            # TRPGプレイヤーにおなじみの書き方
-
-# その他、細かなメソッドはソースやspec等参照
+ # その他、細かなメソッドはソースやspec等参照
 
 == Create Parameters
 
-前提として、生成パラメータは努力目標
-できるだけ指定を満たそうとはするが、ランダムなので保証はできない
-
-まず全体を一つのBlockとして定義し、それを再帰的に分割した後、
-各Blockに部屋か交差点を作るため、Blockとは1:1の関係になる
+ 前提として、生成パラメータは努力目標
+ できるだけ指定を満たそうとはするが、ランダムなので保証はできない
+ 
+ まず全体を一つのBlockとして定義し、それを再帰的に分割した後、
+ 各Blockに部屋か交差点を作るため、Blockとは1:1の関係になる
 
 * :min_block_size  => 分割Blockの最低サイズ
 * :max_block_count => Blockの最大生成数
@@ -80,7 +80,7 @@ dice(5, 10)      # 10面のサイコロを5回振った合計を返す
 
 === パラメータが適用されない
 
-パラメータには適用優先順位があります
+ パラメータには適用優先順位があります
 
 1. min_block_size 
 2. max_block_count 
@@ -91,57 +91,57 @@ dice(5, 10)      # 10面のサイコロを5回振った合計を返す
 7. max_room_size 
 8. min_room_size 
 
-上位のパラメータに対し、下位のパラメータが矛盾した場合、
-無視はしませんが、保証はされません
+ 上位のパラメータに対し、下位のパラメータが矛盾した場合、
+ 無視はしませんが、保証はされません
 
 === max_room_count=1なのに部屋が2個できる
 
-min_room_countのデフォルト値が2なので、
-上記の優先順位に従い、部屋が2個できます
-（デフォルトが2個なのは、スタート地点とゴール地点を作るためです）
-明示的にmin_room_count=1をあわせて指定すると、一つだけできるはずです
+ min_room_countのデフォルト値が2なので、
+ 上記の優先順位に従い、部屋が2個できます
+ （デフォルトが2個なのは、スタート地点とゴール地点を作るためです）
+ 明示的にmin_room_count=1をあわせて指定すると、一つだけできるはずです
 
 === 道に（部屋でない）行き止まりができる
 
-仕様です
-
-それで片付けるのもあれなので補足すると、
-つなげられそうな交差点を、できるだけつなぐようにしているものの、
-周囲にもうBlockがない等、どうしようもない場合に行き止まりができます
-
-あまりたくさんできると問題ですが、
-たまにあるくらいはゲームとしていいんじゃないかと
+ 仕様です
+ 
+ それで片付けるのもあれなので補足すると、
+ つなげられそうな交差点を、できるだけつなぐようにしているものの、
+ 周囲に残りBlockがない等、どうしようもない場合に行き止まりができます
+ 
+ あまりたくさんできると問題ですが、
+ たまにあるくらいはゲームとしていいんじゃないかと
 
 === 最大分割深度（max_depth）って何？
 
-DivideDungeonMakerは最初のBlockを起点にして、再帰的な分割をしようとします
-
-この分割回数の最大値がmax_depthの指定で、これを小さくすることで、
-小さいBlockだらけになるのを防げます
-max_depth=nの時、作られるBlockの最大値は2^nです
+ DivideDungeonMakerは最初のBlockを起点にして、再帰的な分割をしようとします
+ 
+ この分割回数の最大値がmax_depthの指定で、これを小さくすることで、
+ 小さいBlockだらけになるのを防げます
+ max_depth=nの時、作られるBlockの最大値は2^nです
 
 === イベントやBOSS用に、広い部屋が1つだけ欲しい
 
-min_room_sizeをx/y以上にしたうえで、
-min_block_sizeをx/y以上にするか、max_block_count=1を指定してください
-全体が1Blockになり、限界までRoomを大きくしようとします
+ min_room_sizeをx/y以上にしたうえで、
+ min_block_sizeをx/y以上にするか、max_block_count=1を指定してください
+ 全体が1Blockになり、限界までRoomを大きくしようとします
 
 === スタートとゴール（階段）って無いの？
 
-rdgc-dmはあくまで部屋と道（の座標系）を作るための仕組みです
-スタートやゴールの概念は各ゲームによって異なるため、
-rdgc-dmには含んでいません（RDGCとしては存在します）
-
-Area#ramdom_pointで各Areaのランダムな座標が取れますので、
-それを使ってスタートやゴールやモンスターを配置してください
+ rdgc-dmはあくまで部屋と道（の座標系）を作るための仕組みです
+ スタートやゴールの概念は各ゲームによって異なるため、
+ rdgc-dmには含んでいません（RDGCとしては存在します）
+ 
+ Area#ramdom_pointで各Areaのランダムな座標が取れますので、
+ それを使ってスタートやゴールやモンスターを配置してください
 
 === 自分でロジックを書きたい
 
 * RDGC::Maker::DungeonMakerをincludeしたクラス
 * RDGC::Maker::TempBlockを継承したクラス
 
-これらを組み合わせると自分のロジックが書けます
-詳しくはDivideDungeonMaker/DivideTempBlockのソースを見てください
+ これらを組み合わせると自分のロジックが書けます
+ 詳しくはDivideDungeonMaker/DivideTempBlockのソースを見てください
 
 == Copyright
 
