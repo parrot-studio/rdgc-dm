@@ -11,7 +11,7 @@ Gem::Specification.new do |s|
   s.authors = ["parrot_studio"]
   s.date = %q{2010-04-01}
   s.description = %q{    This gem is part of RDGC - Ruby(Random) Dungeon Game Core.
-    RDGC is core of random dungeon game (like rogue), make dungeon, manage mnsters etc.
+    RDGC is core of random dungeon game (like rogue), make dungeon, manage monsters etc.
 }
   s.email = %q{parrot@users.sourceforge.jp}
   s.extra_rdoc_files = [
@@ -39,6 +39,7 @@ Gem::Specification.new do |s|
      "lib/rdgc/map/tile_type.rb",
      "lib/rdgc/util/config.rb",
      "lib/rdgc/util/random_util.rb",
+     "rdgc-dm.gemspec",
      "spec/rdgc/maker/01_temp_block_spec.rb",
      "spec/rdgc/maker/02_divide_temp_block_spec.rb",
      "spec/rdgc/maker/03_divide_dungeon_maker_divide_spec.rb",

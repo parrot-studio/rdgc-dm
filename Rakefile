@@ -8,7 +8,7 @@ begin
     gem.summary = %Q{Random Dungeon Maker from RDGC}
     gem.description = <<-TXT
     This gem is part of RDGC - Ruby(Random) Dungeon Game Core.
-    RDGC is core of random dungeon game (like rogue), make dungeon, manage mnsters etc.
+    RDGC is core of random dungeon game (like rogue), make dungeon, manage monsters etc.
     TXT
     gem.email = "parrot@users.sourceforge.jp"
     gem.homepage = "http://github.com/parrot-studio/rdgc-dm"
