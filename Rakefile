@@ -5,11 +5,15 @@ begin
   require 'jeweler'
   Jeweler::Tasks.new do |gem|
     gem.name = "rdgc-dm"
-    gem.summary = %Q{TODO: one-line summary of your gem}
-    gem.description = %Q{TODO: longer description of your gem}
+    gem.summary = %Q{Random Dungeon Maker from RDGC}
+    gem.description = <<-TXT
+    This gem is part of RDGC - Ruby(Random) Dungeon Game Core.
+    RDGC is core of random dungeon game (like rogue), make dungeon, manage mnsters etc.
+    TXT
     gem.email = "parrot@users.sourceforge.jp"
     gem.homepage = "http://github.com/parrot-studio/rdgc-dm"
     gem.authors = ["parrot_studio"]
+    gem.required_ruby_version = ">= 1.8.7"
     gem.add_development_dependency "rspec", ">= 1.2.9"
     # gem is a Gem::Specification... see http://www.rubygems.org/read/chapter/20 for additional settings
   end
