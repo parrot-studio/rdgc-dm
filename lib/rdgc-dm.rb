@@ -10,6 +10,7 @@ require 'rdgc/map/block'
 require 'rdgc/map/room'
 require 'rdgc/map/road'
 require 'rdgc/map/board'
+require 'rdgc/map/direction'
 
 require 'rdgc/maker/temp_block'
 require 'rdgc/maker/dungeon_maker'
