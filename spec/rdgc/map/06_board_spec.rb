@@ -22,6 +22,38 @@ describe RDGC::Map::Board, 'has rooms and roads from Blocks' do
     b.right.should == 40
   end
 
+  it "#areas provides rooms and roads list" do
+    b = Board.create(0, 20, 0, 20)
+
+    room = Room.create(5, 15, 5, 15)
+    road1 = Road.create(0, 4, 10, 10)
+    road2 = Road.create(16, 20, 12, 12)
+
+    b.rooms << room
+    b.roads << road1
+    b.roads << road2
+
+    b.areas.each do |a|
+      [room, road1, road2].should be_include(a)
+    end
+  end
+
+  it "#areas_for provide rooms/roads list at (x, y)" do
+    b = Board.create(0, 20, 0, 20)
+
+    room = Room.create(5, 15, 5, 15)
+    road1 = Road.create(0, 4, 10, 10)
+    road2 = Road.create(16, 20, 12, 12)
+
+    b.rooms << room
+    b.roads << road1
+    b.roads << road2
+
+    b.areas_for(10, 10).should be_include(room)
+    b.areas_for(10, 2).should be_include(road1)
+    b.areas_for(12, 20).should be_include(road2)
+  end
+
   it "#fill will fill room/road, and fill at wall other coordinates" do
     b = Board.create(0, 20, 0, 20)
 

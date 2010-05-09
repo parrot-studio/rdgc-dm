@@ -61,6 +61,14 @@ module RDGC
         @roads
       end
 
+      def areas
+        [rooms, roads].flatten
+      end
+
+      def areas_for(x, y)
+        areas.select{|a| a.has_xy?(x, y)}
+      end
+
       def movable?(x, y)
         return false unless has_xy?(x, y)
         tile(x, y).movable?
