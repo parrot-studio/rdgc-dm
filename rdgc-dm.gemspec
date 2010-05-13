@@ -5,11 +5,11 @@
 
 Gem::Specification.new do |s|
   s.name = %q{rdgc-dm}
-  s.version = "0.1.0"
+  s.version = "0.2.0"
 
   s.required_rubygems_version = Gem::Requirement.new(">= 0") if s.respond_to? :required_rubygems_version=
   s.authors = ["parrot_studio"]
-  s.date = %q{2010-04-01}
+  s.date = %q{2010-05-13}
   s.description = %q{    This gem is part of RDGC - Ruby(Random) Dungeon Game Core.
     RDGC is core of random dungeon game (like rogue), make dungeon, manage monsters etc.
 }
@@ -31,8 +31,10 @@ Gem::Specification.new do |s|
      "lib/rdgc/maker/dungeon_maker.rb",
      "lib/rdgc/maker/temp_block.rb",
      "lib/rdgc/map/area.rb",
+     "lib/rdgc/map/blind_area.rb",
      "lib/rdgc/map/block.rb",
      "lib/rdgc/map/board.rb",
+     "lib/rdgc/map/direction.rb",
      "lib/rdgc/map/road.rb",
      "lib/rdgc/map/room.rb",
      "lib/rdgc/map/tile.rb",
@@ -50,6 +52,8 @@ Gem::Specification.new do |s|
      "spec/rdgc/map/04_room_spec.rb",
      "spec/rdgc/map/05_block_spec.rb",
      "spec/rdgc/map/06_board_spec.rb",
+     "spec/rdgc/map/07_direction_spec.rb",
+     "spec/rdgc/map/08_blind_area_spec.rb",
      "spec/rdgc/util/01_config_spec.rb",
      "spec/rdgc/util/02_random_util_spec.rb",
      "spec/spec.opts",
@@ -69,6 +73,8 @@ Gem::Specification.new do |s|
      "spec/rdgc/map/06_board_spec.rb",
      "spec/rdgc/map/01_tile_spec.rb",
      "spec/rdgc/map/03_road_spec.rb",
+     "spec/rdgc/map/08_blind_area_spec.rb",
+     "spec/rdgc/map/07_direction_spec.rb",
      "spec/rdgc/map/05_block_spec.rb",
      "spec/rdgc/map/02_area_spec.rb",
      "spec/rdgc/maker/02_divide_temp_block_spec.rb",
@@ -82,12 +88,9 @@ Gem::Specification.new do |s|
     s.specification_version = 3
 
     if Gem::Version.new(Gem::RubyGemsVersion) >= Gem::Version.new('1.2.0') then
-      s.add_development_dependency(%q<rspec>, [">= 1.2.9"])
     else
-      s.add_dependency(%q<rspec>, [">= 1.2.9"])
     end
   else
-    s.add_dependency(%q<rspec>, [">= 1.2.9"])
   end
 end
 

@@ -85,13 +85,9 @@ License:: The MIT License
  
  
  require 'rubygems'
- # rdgc-dm-blindにrdgc-dmは含まれる
- #require 'rgdc-dm' 
- require 'rdgc-dm-blind'
+ require 'rdgc-dm'
  
- include RDGC::Maker
- 
- board = DivideDungeonMaker.create(30, 40)
+ board = RDGC::Maker::DivideDungeonMaker.create(30, 40)
  # Boardを作っただけでは可視制御は有効にならない
  board.blind_mode? #=> false
  

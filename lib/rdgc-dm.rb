@@ -11,6 +11,7 @@ require 'rdgc/map/room'
 require 'rdgc/map/road'
 require 'rdgc/map/board'
 require 'rdgc/map/direction'
+require 'rdgc/map/blind_area'
 
 require 'rdgc/maker/temp_block'
 require 'rdgc/maker/dungeon_maker'
