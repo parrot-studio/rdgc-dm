@@ -76,6 +76,73 @@ License:: The MIT License
 * :max_depth       => 分割再帰の深さ max_depth=nのとき、Blockの最大数は2^nになる
 * :cross_road_ratio => 交差点生成率（0 <= x <= 9）
 
+== Blind Area(from 0.2)
+
+ Boardが保持する座標系について、座標ごとの可視・不可視を制御する仕組み
+ あくまで状態の管理であり、描画時にその情報を元にした処理を行わないと意味がない
+ サンプル実装である"RO"gueの動作を参考に
+ http://sourceforge.jp/projects/rdgc/
+ 
+ 
+ require 'rubygems'
+ # rdgc-dm-blindにrdgc-dmは含まれる
+ #require 'rgdc-dm' 
+ require 'rdgc-dm-blind'
+ 
+ include RDGC::Maker
+ 
+ board = DivideDungeonMaker.create(30, 40)
+ # Boardを作っただけでは可視制御は有効にならない
+ board.blind_mode? #=> false
+ 
+ # 1. Board#set_blind_modeで可視制御を有効にする
+ board.set_blind_mode # :none/:normal/:blind 省略時は:normal
+ 
+ # 2. 必要ならばArea#set_blindでArea単位の個別指定をする
+ board.rooms.choice.set_blind(:dark)
+ 
+ # 3. Board#fill_blindで可視状態を初期化する
+ # 2.と3.の手順が逆転すると正常に動かない
+ board.fill_blind
+ 
+ # 4. Board#open_blind(x, y, view_range)で不可視状態を可視状態にする
+ # playerが(5, 10)に存在し、見える範囲が2
+ view_range = 2
+ board.open_blind(5, 10, view_range)
+ 
+ # 5. Board#visible?/invisible?/dark?で可視性をチェックし、描画に使う
+ board.visible?(5, 10) #=> true
+ board.visible?(3, 10) #=> true
+ board.visible?(2, 10) #=> false
+ # 実際には移動可能範囲のみが可視状態になる（壁があればそこは処理されない）
+ 
+ # ...
+ 
+ # playerが(6, 10)に移動した
+ board.open_blind(6, 10, view_range)
+ board.visible?(6, 10) #=> true
+ board.visible?(5, 10) #=> true
+ # 一度歩いた場所は見えるようになっている
+ board.visible?(3, 10) #=> true
+
+=== Area#set_blindに指定できるレベル
+
+ * :none => Area内は最初から全て可視
+ * :open => 最初は全体が不可視だが、Area内の座標に対してopen_blindされると、Area全体が可視状態になる
+ * :blind => 最初は全体が不可視で、open_blindされた場所だけが可視状態
+ * :dark => open_blind時にArea内の状態が一度初期化され、常にopen_blindされた領域しか見えない（ダークゾーン）
+
+=== Board#set_blind_modeに指定できるレベル
+
+ * :normal => Roomが全て:open、Roadが全て:blind（デフォルト）
+ * :none => Room/Road共に:none
+ * :blind => Room/Road共に:blind
+
+ Board全体を:darkに指定するオプションは定義されていない
+ 必要ならば手動で行う
+ 
+ board.areas.each{|a| a.blind_level(:dark)}
+
 == FAQ
 
 === パラメータが適用されない
@@ -133,7 +200,7 @@ License:: The MIT License
  rdgc-dmには含んでいません（RDGCとしては存在します）
  
  Area#ramdom_pointで各Areaのランダムな座標が取れますので、
- それを使ってスタートやゴールやモンスターを配置してください
+ それを使ってスタートやゴールや障害を配置してください
 
 === 自分でロジックを書きたい
 
