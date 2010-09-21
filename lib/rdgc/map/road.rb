@@ -11,6 +11,7 @@ module RDGC
 
       def fill
         fill_tile TileType::ROAD
+        self
       end
 
     end

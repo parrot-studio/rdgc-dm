@@ -3,6 +3,8 @@ module RDGC
   module Util
     module RandomUtil
 
+      module_function
+
       def bool_rand
         case rand(2)
         when 1
@@ -48,8 +50,6 @@ module RDGC
         n.times{ret += range_rand(1, max)}
         ret
       end
-
-      module_function :bool_rand, :range_rand, :select_rand, :dice
 
     end
   end
@@ -99,6 +99,12 @@ class Array
     ret = self.choice
     self.delete(ret)
     ret
+  end
+
+  if RUBY_VERSION >= '1.9.1'
+    def choice
+      self.sample
+    end
   end
 
 end

@@ -14,6 +14,8 @@ module RDGC
 
         fill_room
         fill_roads
+
+        self
       end
 
       def fill_room
@@ -21,6 +23,8 @@ module RDGC
         room.each_tile do |x, y, t|
           set_tile(x, y, t)
         end
+
+        self
       end
 
       def fill_roads
@@ -30,6 +34,8 @@ module RDGC
             set_tile(x, y, t)
           end
         end
+
+        self
       end
 
       def room
@@ -101,6 +107,7 @@ module RDGC
         remove_room
         remove_roads
         remove_cross_point
+        self
       end
 
       def empty?

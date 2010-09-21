@@ -19,6 +19,8 @@ module RDGC
 
         set_coordinates
         fill
+
+        self
       end
 
       def set_coordinates
@@ -27,6 +29,8 @@ module RDGC
         self.bottom = blocks.map(&:bottom).max
         self.left = blocks.map(&:left).min
         self.right = blocks.map(&:right).max
+
+        self
       end
 
       def fill
@@ -44,6 +48,8 @@ module RDGC
             set_tile(x, y, t)
           end
         end
+
+        self
       end
 
       def blocks

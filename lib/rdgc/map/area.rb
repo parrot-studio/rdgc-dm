@@ -79,6 +79,8 @@ module RDGC
         each do |x, y|
           set_tile(x, y, tile)
         end
+
+        self
       end
 
       def set_tile(x, y, tile)

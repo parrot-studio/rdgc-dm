@@ -22,6 +22,7 @@ module RDGC
 
       def fill
         fill_tile TileType::ROOM
+        self
       end
 
       private

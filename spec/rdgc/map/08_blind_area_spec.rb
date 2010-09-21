@@ -175,13 +175,18 @@ describe "blind mode" do
       @road2.blind_level_blind?.should be_true
     end
 
+    it "#blind_state/#set_blind_state will get/set blind_state" do
+      @board.set_blind_state(10, 9, :blind)
+      @board.blind_state(10, 9).should == :blind
+    end
+
     it "#fill_blind will fill blind_data as each area's blind_level" do
       @board.set_blind_mode
       @board.fill_blind
 
       @board.areas.each do |r|
         r.each do |x, y|
-          @board.blind_data[x][y].should == :blind
+          @board.blind_state(x, y).should == :blind
         end
       end
 
@@ -190,7 +195,7 @@ describe "blind mode" do
 
       @board.areas.each do |r|
         r.each do |x, y|
-          @board.blind_data[x][y].should == :none
+          @board.blind_state(x, y).should == :none
         end
       end
     end
@@ -204,7 +209,7 @@ describe "blind mode" do
       @room.each.all?{|x, y| @board.dark?(x, y)}.should be_true
 
       tx, ty = @room.random_point
-      @board.blind_data[tx][ty] = :none
+      @board.set_blind_state(tx, ty, :none)
       @board.dark?(tx, ty).should be_false
     end
 
@@ -216,7 +221,7 @@ describe "blind mode" do
 
       5.times do
         tx, ty = @room.random_point
-        @board.blind_data[tx][ty] = :none
+        @board.set_blind_state(tx, ty, :none)
       end
       @room.each.all?{|x, y| @board.dark?(x, y)}.should be_false
 
@@ -231,33 +236,33 @@ describe "blind mode" do
       @board.fill_blind
 
       @board.open_blind(10, 4, 0)
-      @board.blind_data[10][4].should == :none
-      @board.blind_data[10][3].should == :blind
-      @board.blind_data[10][5].should == :blind
+      @board.blind_state(10, 4).should == :none
+      @board.blind_state(10, 3).should == :blind
+      @board.blind_state(10, 5).should == :blind
 
       @board.open_blind(10, 4, 1)
-      @board.blind_data[10][4].should == :none
-      @board.blind_data[10][3].should == :none
-      @board.blind_data[10][5].should == :none
-      @board.blind_data[10][2].should == :blind
-      @board.blind_data[10][6].should == :blind
+      @board.blind_state(10, 4).should == :none
+      @board.blind_state(10, 3).should == :none
+      @board.blind_state(10, 5).should == :none
+      @board.blind_state(10, 2).should == :blind
+      @board.blind_state(10, 6).should == :blind
 
       @board.open_blind(10, 4, 2)
-      @board.blind_data[10][4].should == :none
-      @board.blind_data[10][3].should == :none
-      @board.blind_data[10][2].should == :none
-      @board.blind_data[10][1].should == :blind
+      @board.blind_state(10, 4).should == :none
+      @board.blind_state(10, 3).should == :none
+      @board.blind_state(10, 2).should == :none
+      @board.blind_state(10, 1).should == :blind
 
-      @board.blind_data[10][5].should == :none
-      @board.blind_data[9][5].should == :none
-      @board.blind_data[10][6].should == :none
-      @board.blind_data[11][5].should == :none
+      @board.blind_state(10, 5).should == :none
+      @board.blind_state(9, 5).should == :none
+      @board.blind_state(10, 6).should == :none
+      @board.blind_state(11, 5).should == :none
 
-      @board.blind_data[8][5].should == :blind
-      @board.blind_data[12][5].should == :blind
-      @board.blind_data[9][6].should == :blind
-      @board.blind_data[11][6].should == :blind
-      @board.blind_data[10][7].should == :blind
+      @board.blind_state(8, 5).should == :blind
+      @board.blind_state(12, 5).should == :blind
+      @board.blind_state(9, 6).should == :blind
+      @board.blind_state(11, 6).should == :blind
+      @board.blind_state(10, 7).should == :blind
     end
 
     it "#open_blind will clear blind all of area for :open" do
@@ -265,13 +270,13 @@ describe "blind mode" do
       @board.fill_blind
 
       @board.open_blind(10, 4, 1)
-      @board.blind_data[10][4].should == :none
-      @board.blind_data[10][3].should == :none
-      @board.blind_data[10][5].should == :none
-      @board.blind_data[10][2].should == :blind
+      @board.blind_state(10, 4).should == :none
+      @board.blind_state(10, 3).should == :none
+      @board.blind_state(10, 5).should == :none
+      @board.blind_state(10, 2).should == :blind
 
       @room.each do |x, y|
-        @board.blind_data[x][y].should == :none
+        @board.blind_state(x, y).should == :none
       end
     end
 
@@ -283,25 +288,25 @@ describe "blind mode" do
       # 1歩目
       @board.open_blind(10, 5, 1)
 
-      @board.blind_data[10][4].should == :none
+      @board.blind_state(10, 4).should == :none
 
-      @board.blind_data[10][5].should == :none
-      @board.blind_data[9][5].should == :none
-      @board.blind_data[11][5].should == :none
-      @board.blind_data[10][6].should == :none
+      @board.blind_state(10, 5).should == :none
+      @board.blind_state(9, 5).should == :none
+      @board.blind_state(11, 5).should == :none
+      @board.blind_state(10, 6).should == :none
 
       # 2歩目
       @board.open_blind(10, 6, 1)
-      @board.blind_data[10][4].should == :none
+      @board.blind_state(10, 4).should == :none
 
-      @board.blind_data[10][6].should == :none
-      @board.blind_data[9][6].should == :none
-      @board.blind_data[11][6].should == :none
-      @board.blind_data[10][5].should == :none
-      @board.blind_data[10][7].should == :none
+      @board.blind_state(10, 6).should == :none
+      @board.blind_state(9, 6).should == :none
+      @board.blind_state(11, 6).should == :none
+      @board.blind_state(10, 5).should == :none
+      @board.blind_state(10, 7).should == :none
 
-      @board.blind_data[9][5].should == :dark
-      @board.blind_data[11][5].should == :dark
+      @board.blind_state(9, 5).should == :dark
+      @board.blind_state(11, 5).should == :dark
     end
 
     it "#visible?/#invisible?" do

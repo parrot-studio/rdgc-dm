@@ -11,6 +11,7 @@ module RDGC
       def set_blind(level)
         return unless [:none, :open, :blind, :dark].include?(level)
         @blind_level = level
+        self
       end
 
       def blind_level_none?
@@ -51,6 +52,7 @@ module RDGC
         @blind_mode = mode
         @blind_mode ||= BLIND_MODE_NORMAL
         init_blind
+        self
       end
 
       def blind_mode
@@ -76,10 +78,12 @@ module RDGC
             blind_data[x][y] = target
           end
         end
+
+        self
       end
 
       def visible?(x, y)
-        return false  unless has_xy?(x, y)
+        return false unless has_xy?(x, y)
         return true unless blind_mode?
         v = blind_data[x][y]
         return false unless v
@@ -91,7 +95,7 @@ module RDGC
       end
 
       def dark?(x, y)
-        return false  unless has_xy?(x, y)
+        return false unless has_xy?(x, y)
         blind_data[x][y] == :dark ? true : false
       end
 
@@ -112,11 +116,8 @@ module RDGC
             blind_data[x][y] = :none
           end
         end
-      end
 
-      def blind_data
-        @blind_data ||= Hash.new{|hash, key| hash[key] = {}}
-        @blind_data
+        self
       end
 
       def init_blind
@@ -128,12 +129,16 @@ module RDGC
         when BLIND_MODE_NORMAL
           init_blind_normal
         end
+
+        self
       end
 
       def init_blind_all(level)
         areas.each do |r|
           r.set_blind(level)
         end
+
+        self
       end
 
       def init_blind_normal
@@ -144,9 +149,26 @@ module RDGC
         roads.each do |r|
           r.set_blind(:blind)
         end
+
+        self
+      end
+
+      def blind_state(x, y)
+        return unless has_xy?(x, y)
+        blind_data[x][y]
+      end
+
+      def set_blind_state(x, y, state)
+        return unless has_xy?(x, y)
+        blind_data[x][y] = state
       end
 
       private
+
+      def blind_data
+        @blind_data ||= Hash.new{|hash, key| hash[key] = {}}
+        @blind_data
+      end
 
       def fill_dark_before_cancel
         areas.select{|r| r.blind_level_dark?}.each do |r|
