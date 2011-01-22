@@ -33,58 +33,7 @@ module RDGC
 
       # override
       def create_room
-        # 部屋と交差点を分ける
-        room_blocks = []
-        cross_blocks = []
-        force_room_blocks = []
-
-        param = {
-          :room => (10 - cross_road_ratio),
-          :cross => cross_road_ratio
-        }
-
-        blocks.each do |b|
-          # 初回分割のBlockは行き止まりになるので避ける
-          if b.depth < 2
-            force_room_blocks << b
-            next
-          end
-
-          r = select_rand(param)
-          case r
-          when :room
-            room_blocks << b
-          when :cross
-            cross_blocks << b
-          end
-        end
-
-        room_count = room_blocks.size + force_room_blocks.size
-        if max_room_count > 0 && room_count > max_room_count
-          # 超えた分だけ移動する
-          (room_count - max_room_count).times do
-            break if room_blocks.size + force_room_blocks.size <= 1
-            break if room_blocks.empty?
-            b = room_blocks.pickup!
-            cross_blocks << b if b
-          end
-        end
-
-        room_count = room_blocks.size + force_room_blocks.size
-        if room_count < min_room_count
-          # 足りない分を移動する
-          (min_room_count - room_count).times do
-            break if cross_blocks.empty?
-            b = cross_blocks.pickup!
-            room_blocks << b if b
-          end
-        end
-
-        # それぞれのblockを処理
-        [room_blocks, force_room_blocks].flatten.each do |b|
-          b.create_room(:min => min_room_size, :max => max_room_size)
-        end
-        cross_blocks.each{|b| b.create_cross_point}
+        force_room_count ? create_room_force : create_room_normal
       end
 
       # override
@@ -130,16 +79,20 @@ module RDGC
         params[:max_room_size]
       end
 
+      def min_block_count
+        params[:min_block_count].to_i
+      end
+
       def max_block_count
         params[:max_block_count].to_i
       end
 
       def min_room_count
+        return force_room_count if force_room_count
         unless @min_room_count
           val = params[:min_room_count].to_i
-          # 明示的に「1」という指定がない限り2部屋は作る
-          val = 2 if val <= 0
-          @min_room_count = val
+          # force_room_countを使わない限り、1部屋・部屋なしは作れない
+          @min_room_count = (val > 2 ? val : 2)
         end
         @min_room_count
       end
@@ -166,6 +119,10 @@ module RDGC
           @cross_road_ratio = val
         end
         @cross_road_ratio
+      end
+
+      def force_room_count
+        params[:force_room_count]
       end
 
       def divide_queue
@@ -225,6 +182,81 @@ module RDGC
 
         # queueをまとめる
         divide_queue.each{|b| done_queue << b}
+          
+        # 作成した結果、まだdividableのものがあり、数が足りないなら分割
+        if min_block_count > 0 && done_queue.size < min_block_count
+          (min_block_count - queue_size).times do
+            tb = done_queue.select{|b| b.dividable_size?}.shuffle.shift
+            break unless tb
+            done_queue.delete(tb)
+            tb.divide.each{|b| done_queue << b}
+          end
+        end
+      end
+
+      def create_room_normal
+        # 部屋と交差点を分ける
+        room_blocks = []
+        cross_blocks = []
+        force_room_blocks = []
+
+        param = {
+          :room => (10 - cross_road_ratio),
+          :cross => cross_road_ratio
+        }
+
+        blocks.each do |b|
+          # 初回分割のBlockは行き止まりになるので避ける
+          if b.depth < 2
+            force_room_blocks << b
+            next
+          end
+
+          r = select_rand(param)
+          case r
+          when :room
+            room_blocks << b
+          when :cross
+            cross_blocks << b
+          end
+        end
+
+        room_count = room_blocks.size + force_room_blocks.size
+        if max_room_count > 0 && room_count > max_room_count
+          # 超えた分だけ移動する
+          (room_count - max_room_count).times do
+            break if room_blocks.size + force_room_blocks.size <= 1
+            break if room_blocks.empty?
+            b = room_blocks.pickup!
+            cross_blocks << b if b
+          end
+        end
+
+        room_count = room_blocks.size + force_room_blocks.size
+        if room_count < min_room_count
+          # 足りない分を移動する
+          (min_room_count - room_count).times do
+            break if cross_blocks.empty?
+            b = cross_blocks.pickup!
+            room_blocks << b if b
+          end
+        end
+
+        # それぞれのblockを処理
+        [room_blocks, force_room_blocks].flatten.each do |b|
+          b.create_room(:min => min_room_size, :max => max_room_size)
+        end
+        cross_blocks.each{|b| b.create_cross_point}
+      end
+
+      def create_room_force
+        blocks.shuffle.each.with_index do |b, i|
+          if (i+1) <= force_room_count.to_i
+            b.create_room(:min => min_room_size, :max => max_room_size)
+          else
+            b.create_cross_point
+          end
+        end
       end
 
       # -------------------------------------------------------------

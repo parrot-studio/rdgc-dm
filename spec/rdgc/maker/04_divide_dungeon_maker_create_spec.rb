@@ -61,10 +61,11 @@ describe RDGC::Maker::DivideDungeonMaker, 'create room/road for each block' do
         maker.blocks.select{|b| b.has_room?}.size.should <= 3
       end
 
+      # min_room_count = 1でも2部屋できる (from ver2.2)
       10.times do
         maker = create_maker_with_blocks(:min_room_count => 1, :max_room_count => 1)
         maker.create_room
-        maker.blocks.select{|b| b.has_room?}.size.should == 1
+        maker.blocks.select{|b| b.has_room?}.size.should == 2
       end
 
     end
@@ -86,6 +87,20 @@ describe RDGC::Maker::DivideDungeonMaker, 'create room/road for each block' do
         all_size = maker.blocks.size
         maker.blocks.select{|b| b.has_room?}.size.should == all_size
         maker.blocks.select{|b| b.has_cross_point?}.size.should == 0
+      end
+    end
+
+    it "fixed count rooms create, if force_room_count exists" do
+      # force_room_countを指定すれば、1部屋や部屋なしも作れる
+      (0..2).each do |force_size|
+        10.times do
+          maker = create_maker_with_blocks(:force_room_count => force_size)
+          maker.create_room
+
+          max = maker.blocks.size
+          expect = (max > force_size ? force_size : max)
+          maker.blocks.select{|b| b.has_room?}.size.should == expect
+        end
       end
     end
 
@@ -159,6 +174,7 @@ describe RDGC::Maker::DivideDungeonMaker, 'create room/road for each block' do
       params = {}
       params[:min_room_size] = 5
       params[:max_room_size] = 10
+      params[:min_block_size] = 4
       params[:min_block_size] = 8
       params[:min_room_count] = 3
       params[:max_room_count] = 8
@@ -189,15 +205,21 @@ describe RDGC::Maker::DivideDungeonMaker, 'create room/road for each block' do
 
           room_count += 1
         end
-        room_count.should >= params[:min_room_count]
+
+        if board.blocks.size <= 2
+          room_count.should == 2
+        else
+          room_count.should >= params[:min_room_count]
+        end
         room_count.should <= params[:max_room_count]
       end
     end
 
-    it "only one block board" do
+    it "only one big block board" do
+      # min_block_sizeの指定が大きいので、min_room_count/max_room_countが影響しない
       params = {}
-      params[:min_room_count] = 1
-      params[:max_room_count] = 1
+      params[:min_room_count] = 2
+      params[:max_room_count] = 5
       params[:min_block_size] = 99
 
       10.times do
@@ -220,6 +242,33 @@ describe RDGC::Maker::DivideDungeonMaker, 'create room/road for each block' do
           b.has_road?.should be_true
           b.has_cross_point?.should be_false
         end
+      end
+    end
+
+    it "fixed room count board" do
+      (0..2).each do |force_size|
+        10.times do
+          board = DivideDungeonMaker.create(40, 40, :force_room_count => force_size)
+          board.should be_an_instance_of(Map::Board)
+
+          max = board.blocks.size
+          expect = (max > force_size ? force_size : max)          
+          board.blocks.select{|b| b.has_room?}.size.should == expect
+        end
+      end
+    end
+
+    it "create no blocks if one big block and force no room" do
+      params = {}
+      params[:force_room_count] = 0
+      params[:min_block_size] = 99
+
+      10.times do
+        board = DivideDungeonMaker.create(40, 40, params)
+        board.should be_an_instance_of(Map::Board)
+
+        board.blocks.size.should == 0
+        board.blocks.map(&:room).size.should == 0
       end
     end
 

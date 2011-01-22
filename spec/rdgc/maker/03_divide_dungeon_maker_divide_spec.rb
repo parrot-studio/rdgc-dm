@@ -56,12 +56,12 @@ describe RDGC::Maker::DivideDungeonMaker, 'is divide block by recursive' do
       maker.params[:min_room_count] = 5
       maker.min_room_count.should == 3
 
-      # 明示的に1を指定すると1
+      # 2以下ならデフォルト
+      # force_room_countを指定しないと1部屋は作れない
       maker = DivideDungeonMaker.new
       maker.params[:min_room_count] = 1
-      maker.min_room_count.should == 1
+      maker.min_room_count.should == 2
 
-      # 0以下ならデフォルト
       maker = DivideDungeonMaker.new
       maker.params[:min_room_count] = 0
       maker.min_room_count.should == 2
@@ -109,6 +109,21 @@ describe RDGC::Maker::DivideDungeonMaker, 'is divide block by recursive' do
       maker = DivideDungeonMaker.new
       maker.params[:cross_road_ratio] = 10
       maker.cross_road_ratio.should == 2
+    end
+
+    it "force_room_count" do
+      maker = DivideDungeonMaker.new
+      maker.force_room_count.should be_nil
+      # force_room_countを指定すると、min_room_countに影響する
+      maker.min_room_count.should == 2
+
+      maker.params[:force_room_count] = 1
+      maker.force_room_count.should == 1
+      maker.min_room_count.should == 1
+
+      maker.params[:force_room_count] = 0
+      maker.force_room_count.should == 0
+      maker.min_room_count.should == 0
     end
 
   end
@@ -194,7 +209,7 @@ describe RDGC::Maker::DivideDungeonMaker, 'is divide block by recursive' do
         count = 0
         each_create_block(:max_block_count, 5) do |b|
           b.should be_an_instance_of(DivideTempBlock)
-          count += 0
+          count += 1
         end
         count.should <= 5
       end
@@ -203,10 +218,31 @@ describe RDGC::Maker::DivideDungeonMaker, 'is divide block by recursive' do
         count = 0
         each_create_block(:max_depth, 3) do |b|
           b.should be_an_instance_of(DivideTempBlock)
-          b.depth <= 3
+          b.depth.should <= 3
           count += 1
         end
         count.should <= 8
+      end
+    end
+
+    it "min_block_count affect divide as possible" do
+      (8..20).each do |ts|
+        10.times do
+          count = 0
+          remain = 0
+          each_create_block(:min_block_count, ts) do |b|
+            b.should be_an_instance_of(DivideTempBlock)
+            remain += 1 if b.dividable_size?
+            count += 1
+          end
+          
+          if count >= ts
+            count.should >= ts # always OK
+          else
+            # min_block_countを満たせない場合に、分割がもう限界であるか？
+            remain.should <= 0
+          end
+        end
       end
     end
 
