@@ -6,7 +6,6 @@ License:: The MIT License
 * ダンジョンは部屋と道で構成される
 
 == Install
- gem install gemcutter # インストール済みなら不要
  gem install rdgc-dm
 
 == Usage
@@ -67,21 +66,31 @@ License:: The MIT License
  まず全体を一つのBlockとして定義し、それを再帰的に分割した後、
  各Blockに部屋か交差点を作るため、Blockとは1:1の関係になる
 
-* :min_block_size  => 分割Blockの最低サイズ
-* :max_block_count => Blockの最大生成数
-* :min_room_size   => 部屋の最低サイズ（デフォルトは4で、4以下は強制的に4）
-* :max_room_size   => 部屋の最大サイズ
-* :min_room_count  => 部屋の最低生成数（デフォルトは2）
-* :max_room_count  => 部屋の最大生成数
-* :max_depth       => 分割再帰の深さ max_depth=nのとき、Blockの最大数は2^nになる
+* :min_block_size   => 分割Blockの最低サイズ
+* :min_block_count  => Blockの最低生成数
+* :max_block_count  => Blockの最大生成数
+* :min_room_size    => 部屋の最低サイズ（デフォルトは4で、4以下は強制的に4）
+* :max_room_size    => 部屋の最大サイズ
+* :min_room_count   => 部屋の最低生成数（デフォルトは2）
+* :max_room_count   => 部屋の最大生成数
+* :force_room_count => 部屋の固定生成数（min/max_room_countを無視）
+* :max_depth        => 分割再帰の深さ max_depth=nのとき、Blockの最大数は2^nになる
 * :cross_road_ratio => 交差点生成率（0 <= x <= 9）
+
+
+== 0.2.2修正点
+
+* min_block_countを追加。分割可能なBlockがあれば指定数まで分割しようとする
+* force_room_countを追加。他のroom_count指定を無視し、指定された数の部屋を作る。ただし、Blockの数を超えられない
+* min_room_size最低値を2固定に修正。1を指定しても2に修正される
 
 == Blind Area(from 0.2)
 
  Boardが保持する座標系について、座標ごとの可視・不可視を制御する仕組み
  あくまで状態の管理であり、描画時にその情報を元にした処理を行わないと意味がない
  サンプル実装である"RO"gueの動作を参考に
- http://sourceforge.jp/projects/rdgc/
+
+http://sourceforge.jp/projects/rdgc/
  
  
  require 'rubygems'
@@ -123,16 +132,16 @@ License:: The MIT License
 
 === Area#set_blindに指定できるレベル
 
- * :none => Area内は最初から全て可視
- * :open => 最初は全体が不可視だが、Area内の座標に対してopen_blindされると、Area全体が可視状態になる
- * :blind => 最初は全体が不可視で、open_blindされた場所だけが可視状態
- * :dark => open_blind時にArea内の状態が一度初期化され、常にopen_blindされた領域しか見えない（ダークゾーン）
+* :none => Area内は最初から全て可視
+* :open => 最初は全体が不可視だが、Area内の座標に対してopen_blindされると、Area全体が可視状態になる
+* :blind => 最初は全体が不可視で、open_blindされた場所だけが可視状態
+* :dark => open_blind時にArea内の状態が一度初期化され、常にopen_blindされた領域しか見えない（ダークゾーン）
 
 === Board#set_blind_modeに指定できるレベル
 
- * :normal => Roomが全て:open、Roadが全て:blind（デフォルト）
- * :none => Room/Road共に:none
- * :blind => Room/Road共に:blind
+* :normal => Roomが全て:open、Roadが全て:blind（デフォルト）
+* :none => Room/Road共に:none
+* :blind => Room/Road共に:blind
 
  Board全体を:darkに指定するオプションは定義されていない
  必要ならば手動で行う
@@ -145,14 +154,16 @@ License:: The MIT License
 
  パラメータには適用優先順位があります
 
-1. min_block_size 
-2. max_block_count 
-3. max_depth 
-4. min_room_count 
-5. max_room_count 
-6. cross_road_ratio 
-7. max_room_size 
-8. min_room_size 
+1.  min_block_size
+2.  min_block_count
+3.  max_block_count 
+4.  max_depth 
+5.  force_room_count
+6.  min_room_count 
+7.  max_room_count 
+8.  cross_road_ratio 
+9.  max_room_size 
+10. min_room_size 
 
  上位のパラメータに対し、下位のパラメータが矛盾した場合、
  無視はしませんが、保証はされません
@@ -162,7 +173,7 @@ License:: The MIT License
  min_room_countのデフォルト値が2なので、
  上記の優先順位に従い、部屋が2個できます
  （デフォルトが2個なのは、スタート地点とゴール地点を作るためです）
- 明示的にmin_room_count=1をあわせて指定すると、一つだけできるはずです
+ 明示的にforce_room_count=1を指定しないと部屋が一つだけにはなりません
 
 === 道に（部屋でない）行き止まりができる
 
@@ -198,6 +209,11 @@ License:: The MIT License
  Area#ramdom_pointで各Areaのランダムな座標が取れますので、
  それを使ってスタートやゴールや障害を配置してください
 
+=== 部屋を作りたくない（ただの迷路にしたい）
+
+ 0.2.2から追加されたforce_room_count=0を指定してください
+ 部屋を一切作らなくなります
+
 === 自分でロジックを書きたい
 
 * RDGC::Maker::DungeonMakerをincludeしたクラス
@@ -208,4 +224,4 @@ License:: The MIT License
 
 == Copyright
 
-Copyright (c) 2010 parrot_studio. See LICENSE for details
+Copyright (c) 2010-2011 parrot_studio. See LICENSE for details
